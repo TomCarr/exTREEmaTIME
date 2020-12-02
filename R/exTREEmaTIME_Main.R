@@ -1,7 +1,7 @@
 #' performs core analysis and writes max age tree and min age tree to file
 #' writes branch specific rates in max age tree and min age tree to file
 #' @export
-exTREEmaTIMEcalc <- function(tree, rmax, rmin, n_max_constraints, max_constraint_clade, max_constraint_age, n_min_constraints, min_constraint_clade, min_constraint_age, calibration_implementation_precision, sample_time){
+exTREEmaTIMEcalc <- function(tree, rmax, rmin, n_max_constraints, max_constraint_clade, max_constraint_age, n_min_constraints, min_constraint_clade, min_constraint_age, calibration_implementation_precision, tip, sample_time){
 
 ###GET_KEY_TREE_VARIABLES###
 ############################
