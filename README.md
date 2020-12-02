@@ -29,6 +29,8 @@ min_constraints_age: a list containing the age of each minimum constraint, must 
 
 calibration_implementation_precision: numeric value that describes the scale of each round of age transformations when rescaling branches. Larger values will make the analysis run more quickly
 
+tip: a list of all tip labels in the input phylogeny
+
 sample_time: list of the sampling time for each tip. Must be in the same order as the tip labels in the input phylogeny
 
 OUTPUTS:
