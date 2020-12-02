@@ -1,13 +1,13 @@
 # exTREEmaTIME
 exTREEmaTIME: incorporating uncertainty into divergence time estimates
 
-This package comprises two functions.
+## Functions
 
-# To perform the core divergence time analyses use:
+### To perform the core divergence time analyses use:
 
 exTREEmaTIMEcalc(tree, rmax, rmin, n_max_constraints, max_constraints_clade, max_constraints_age, n_min_constraints, min_constraints_clade, min_constraints_age, calibration_implementation_precision, sample_time)
 
-ARGUEMENTS:
+#### ARGUEMENTS:
 
 tree: input phylogeny with branch lengths in units of n
 
@@ -33,14 +33,16 @@ tip: a list of all tip labels in the input phylogeny
 
 sample_time: list of the sampling time for each tip. Must be in the same order as the tip labels in the input phylogeny
 
-OUTPUTS:
+#### OUTPUTS:
 
 min_ages_tree, max_ages_tree, rates
 
 
-# To estimate reasonable values for rmin and rmax, as set out in appendix 1, use:
+## To estimate reasonable values for rmin and rmax, as set out in Appendix 1, use:
 
 SetAutoRates(tree, root_min, root_max, unit)
+
+### ARGUEMENTS:
 
 tree: input phylogeny with branch lengths in units of n
 
@@ -50,7 +52,7 @@ root_max: maximum possible age of the root node
 
 unit: Increases the range between estimated values for rmin and rmax. Sequentially increase this value until analysis reaches completion.
 
-OUTPUT:
+#### OUTPUT:
 
 rmin, rmax
  
