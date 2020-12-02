@@ -3,7 +3,7 @@ exTREEmaTIME: incorporating uncertainty into divergence time estimates
 
 This package comprises two functions.
 
-#To perform the core divergence time analyses use:
+# To perform the core divergence time analyses use:
 
 exTREEmaTIMEcalc(tree, rmax, rmin, n_max_constraints, max_constraints_clade, max_constraints_age, n_min_constraints, min_constraints_clade, min_constraints_age, calibration_implementation_precision, sample_time)
 
@@ -36,7 +36,7 @@ OUTPUTS:
 min_ages_tree, max_ages_tree, rates
 
 
-#To estimate reasonable values for rmin and rmax, as set out in appendix 1, use:
+# To estimate reasonable values for rmin and rmax, as set out in appendix 1, use:
 
 SetAutoRates(tree, root_min, root_max, unit)
 
