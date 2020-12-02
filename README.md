@@ -13,7 +13,7 @@ to download use install_github("exTREEmaTIME")
 
 exTREEmaTIMEcalc(tree, rmax, rmin, n_max_constraints, max_constraints_clade, max_constraints_age, n_min_constraints, min_constraints_clade, min_constraints_age, calibration_implementation_precision, sample_time)
 
-##### arguements:
+##### arguments:
 
 tree: input phylogeny with branch lengths in units of n
 
@@ -48,7 +48,7 @@ min_ages_tree, max_ages_tree, rates
 
 SetAutoRates(tree, root_min, root_max, unit)
 
-##### arguements:
+##### arguments:
 
 tree: input phylogeny with branch lengths in units of n
 
