@@ -5,7 +5,7 @@ exTREEmaTIME: incorporating uncertainty into divergence time estimates
 
 requires r packages phangorn, devtools, phytools, phylobase, TreePar
 
-to download use install_github("exTREEmaTIME")
+to download use install_github("TomCarr/exTREEmaTIME")
 
 ## Functions
 
