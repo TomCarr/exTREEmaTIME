@@ -1,4 +1,4 @@
-exTREEmaTIMEcore <- function(tree, rmax, rmin, n_max_constraints, max_constraints_clade, max_constraints_ages, n_min_constraints, min_constraints_clade, min_constraints_ages, calibration_implementation_precision, tip, sample_time){
+exTREEmaTIMEcore <- function(tree, rmax, rmin, noise_level, n_max_constraints, max_constraints_clade, max_constraints_ages, n_min_constraints, min_constraints_clade, min_constraints_ages, calibration_implementation_precision, tip, sample_time){
 
 print(tree$tip.label)
 
@@ -31,6 +31,8 @@ pool[[i]] <- list(edge=matrix(c(2,1),1,2), tip.label=tree$tip.label[[i]], edge.l
 class(pool[[i]]) <- "phylo"
 }
 
+print("wee")
+
 if (n_max_constraints > 0){
 max_constraints_tip_label <- vector("list", n_max_constraints)
 for (i in 1:length(max_constraints_tip_label)){
@@ -38,6 +40,7 @@ max_constraints_tip_label[[i]] <- extract.clade(tree, findMRCA(tree, max_constra
 }
 }
 
+print("wee")
 
 if (n_min_constraints > 0){
 min_constraints_tip_label <- vector("list", n_min_constraints)
@@ -45,6 +48,8 @@ for (i in 1:length(min_constraints_tip_label)){
 min_constraints_tip_label[[i]] <- extract.clade(tree, findMRCA(tree, min_constraints_clade[[i]], "node"))$tip.label
 }
 }
+
+print("wee")
 
 ##############################################################################################
 ###CORE_CLADE_AGE_CALCULATION_FOR_MAX_AGE#####################################################
@@ -77,16 +82,31 @@ print(paste(paste("maximum age estimate", i, ""), " initiated", ""))
 
 if ((length(pool[[pool_to_include[[1]]]]$tip.label) == 1) & (length(pool[[pool_to_include[[2]]]]$tip.label) == 1)){
 print("joining two tips")
+
+if (pool[[pool_to_include[[1]]]]$edge.length[[1]] > noise_level & pool[[pool_to_include[[2]]]]$edge.length[[1]] > noise_level){
+
 pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length/min_rate
 pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length/min_rate
-if (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]] < pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]]){
-pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]] - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]]
+if (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]][[1]] < pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]][[1]]){
+pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]][[1]] - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]][[1]]
 } else {
-pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]] - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]]	
+pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]][[1]] - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]][[1]]	
+}
+
+} else {
+
+pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length/min_rate
+pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length/min_rate
+if (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]][[1]] > pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]][[1]]){
+pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]][[1]] - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]][[1]]
+} else {
+pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]][[1]] - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]][[1]]	
+}
+
 }
 
 new <- bind.tree(pool[[pool_to_include[[1]]]], pool[[pool_to_include[[2]]]])
-true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]]
+true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]][[1]]
 
 ###CONGRUIFY_TO_NODE_CALIBRATION######
 
@@ -119,16 +139,27 @@ corresponding_tree <- extract.clade(tree, findMRCA(tree, new$tip.label, "node"))
 min_lengths <- vector(mode="numeric", length=0)
 for (a in 1:nrow(new[[1]])){
 for (b in 1:nrow(corresponding_tree[[1]])){
+
 if (new[[1]][,2][[a]] > length(new$tip.label) & corresponding_tree[[1]][,2][[b]] > length(corresponding_tree$tip.label)){
 if (setequal(extract.clade(new, new[[1]][,2][[a]])$tip.label, extract.clade(corresponding_tree, corresponding_tree[[1]][,2][[b]])$tip.label)){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 min_lengths <- append(min_lengths, corresponding_tree$edge.length[[b]]/max_rate)
+} else {
+min_lengths <- append(min_lengths, 0)
 }
 }
+}
+
 if (new[[1]][,2][[a]] <= length(new$tip.label) & corresponding_tree[[1]][,2][[b]] <= length(corresponding_tree$tip.label)){
 if (new$tip.label[[new[[1]][,2][[a]]]] == corresponding_tree$tip.label[[corresponding_tree[[1]][,2][[b]]]]){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 min_lengths <- append(min_lengths, corresponding_tree$edge.length[[b]]/max_rate)
+} else {
+min_lengths <- append(min_lengths, 0)
 }
 }
+}
+
 }
 }
 
@@ -147,6 +178,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -181,6 +214,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -215,6 +250,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -241,18 +278,35 @@ continue_correction <- 1
 
 else if ((length(pool[[pool_to_include[[1]]]]$tip.label) > 1) & (length(pool[[pool_to_include[[2]]]]$tip.label) > 1)){
 print("joining two clades")
-if ((((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]])
+
+if ((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]]) > noise_level & (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]]) > noise_level){
+
+if ((((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]])
  < 
-(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]])){
+(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]])){
 pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]]/min_rate))
-pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]])) 
+pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]])) 
 } else {
 pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]]/min_rate))
-pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]])) 
+pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]])) 
+}
+
+} else {
+
+if ((((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]])
+ > 
+(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]])){
+pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]]/min_rate))
+pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]])) 
+} else {
+pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]]/min_rate))
+pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]])) 
+}
+
 }
 
 new <- bind.tree(pool[[pool_to_include[[1]]]], pool[[pool_to_include[[2]]]])
-true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]]
+true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]][[1]]
 
 ###CONGRUIFY_TO_NODE_CALIBRATION######
 
@@ -285,16 +339,27 @@ corresponding_tree <- extract.clade(tree, findMRCA(tree, new$tip.label, "node"))
 min_lengths <- vector(mode="numeric", length=0)
 for (a in 1:nrow(new[[1]])){
 for (b in 1:nrow(corresponding_tree[[1]])){
+
 if (new[[1]][,2][[a]] > length(new$tip.label) & corresponding_tree[[1]][,2][[b]] > length(corresponding_tree$tip.label)){
 if (setequal(extract.clade(new, new[[1]][,2][[a]])$tip.label, extract.clade(corresponding_tree, corresponding_tree[[1]][,2][[b]])$tip.label)){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 min_lengths <- append(min_lengths, corresponding_tree$edge.length[[b]]/max_rate)
+} else {
+min_lengths <- append(min_lengths, 0)
 }
 }
+}
+
 if (new[[1]][,2][[a]] <= length(new$tip.label) & corresponding_tree[[1]][,2][[b]] <= length(corresponding_tree$tip.label)){
 if (new$tip.label[[new[[1]][,2][[a]]]] == corresponding_tree$tip.label[[corresponding_tree[[1]][,2][[b]]]]){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 min_lengths <- append(min_lengths, corresponding_tree$edge.length[[b]]/max_rate)
+} else {
+min_lengths <- append(min_lengths, 0)
 }
 }
+}
+
 }
 }
 
@@ -313,6 +378,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -347,6 +414,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -381,6 +450,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -407,18 +478,35 @@ continue_correction <- 1
 
 else if ((length(pool[[pool_to_include[[1]]]]$tip.label) == 1) & (length(pool[[pool_to_include[[2]]]]$tip.label) > 1)){
 print("joining one tip with a clade")
-if (((pool[[pool_to_include[[1]]]]$edge.length/min_rate) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]) 
+
+if (pool[[pool_to_include[[1]]]]$edge.length > noise_level & tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]] > noise_level){
+
+if (((pool[[pool_to_include[[1]]]]$edge.length/min_rate) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]) 
 <
-(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]])){
+(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]])){
 pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length/min_rate
-pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]))
+pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]))
 } else {
 pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]]/min_rate))
-pool[[pool_to_include[[1]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]) - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]
+pool[[pool_to_include[[1]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]) - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]
 }
- 
+
+} else {
+
+if (((pool[[pool_to_include[[1]]]]$edge.length/min_rate) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]) 
+>
+(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]])){
+pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length/min_rate
+pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]))
+} else {
+pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]]/min_rate))
+pool[[pool_to_include[[1]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]) - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]
+}
+
+}
+
 new <- bind.tree(pool[[pool_to_include[[1]]]], pool[[pool_to_include[[2]]]])
-true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]]
+true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]][[1]]
 
 ###CONGRUIFY_TO_NODE_CALIBRATION######
 
@@ -450,16 +538,27 @@ corresponding_tree <- extract.clade(tree, findMRCA(tree, new$tip.label, "node"))
 min_lengths <- vector(mode="numeric", length=0)
 for (a in 1:nrow(new[[1]])){
 for (b in 1:nrow(corresponding_tree[[1]])){
+
 if (new[[1]][,2][[a]] > length(new$tip.label) & corresponding_tree[[1]][,2][[b]] > length(corresponding_tree$tip.label)){
 if (setequal(extract.clade(new, new[[1]][,2][[a]])$tip.label, extract.clade(corresponding_tree, corresponding_tree[[1]][,2][[b]])$tip.label)){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 min_lengths <- append(min_lengths, corresponding_tree$edge.length[[b]]/max_rate)
+} else {
+min_lengths <- append(min_lengths, 0)
 }
 }
+}
+
 if (new[[1]][,2][[a]] <= length(new$tip.label) & corresponding_tree[[1]][,2][[b]] <= length(corresponding_tree$tip.label)){
 if (new$tip.label[[new[[1]][,2][[a]]]] == corresponding_tree$tip.label[[corresponding_tree[[1]][,2][[b]]]]){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 min_lengths <- append(min_lengths, corresponding_tree$edge.length[[b]]/max_rate)
+} else {
+min_lengths <- append(min_lengths, 0)
 }
 }
+}
+
 }
 }
 
@@ -478,6 +577,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -512,6 +613,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -546,6 +649,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -571,18 +676,35 @@ continue_correction <- 1
 
 else if ((length(pool[[pool_to_include[[2]]]]$tip.label) == 1) & (length(pool[[pool_to_include[[1]]]]$tip.label) > 1)){
 print("joining one tip with a clade")
-if (((pool[[pool_to_include[[2]]]]$edge.length/min_rate) + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]) 
+
+if (pool[[pool_to_include[[2]]]]$edge.length > noise_level & tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]] > noise_level){
+
+if (((pool[[pool_to_include[[2]]]]$edge.length/min_rate) + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]) 
 <
-(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]])){
+(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]])){
 pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length/min_rate
-pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]]$tip.label[[1]]) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]))
+pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]]$tip.label[[1]]) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]))
 } else {
 pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]]/min_rate))
-pool[[pool_to_include[[2]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]) - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]
+pool[[pool_to_include[[2]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]) - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]
 } 
 
+} else {
+
+if (((pool[[pool_to_include[[2]]]]$edge.length/min_rate) + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]) 
+>
+(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/min_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]])){
+pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length/min_rate
+pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]]$tip.label[[1]]) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]))
+} else {
+pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]]/min_rate))
+pool[[pool_to_include[[2]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[1]]) - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[1]]
+}
+
+}
+
 new <- bind.tree(pool[[pool_to_include[[1]]]], pool[[pool_to_include[[2]]]])
-true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]]
+true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]][[1]]
 
 ###CONGRUIFY_TO_NODE_CALIBRATION######
 
@@ -615,16 +737,27 @@ corresponding_tree <- extract.clade(tree, findMRCA(tree, new$tip.label, "node"))
 min_lengths <- vector(mode="numeric", length=0)
 for (a in 1:nrow(new[[1]])){
 for (b in 1:nrow(corresponding_tree[[1]])){
+
 if (new[[1]][,2][[a]] > length(new$tip.label) & corresponding_tree[[1]][,2][[b]] > length(corresponding_tree$tip.label)){
 if (setequal(extract.clade(new, new[[1]][,2][[a]])$tip.label, extract.clade(corresponding_tree, corresponding_tree[[1]][,2][[b]])$tip.label)){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 min_lengths <- append(min_lengths, corresponding_tree$edge.length[[b]]/max_rate)
+} else {
+min_lengths <- append(min_lengths, 0)
 }
 }
+}
+
 if (new[[1]][,2][[a]] <= length(new$tip.label) & corresponding_tree[[1]][,2][[b]] <= length(corresponding_tree$tip.label)){
 if (new$tip.label[[new[[1]][,2][[a]]]] == corresponding_tree$tip.label[[corresponding_tree[[1]][,2][[b]]]]){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 min_lengths <- append(min_lengths, corresponding_tree$edge.length[[b]]/max_rate)
+} else {
+min_lengths <- append(min_lengths, 0)
 }
 }
+}
+
 }
 }
 
@@ -643,6 +776,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -677,6 +812,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -711,6 +848,8 @@ negative_branch <- negative_branch[[1]]
 if (new[[1]][,2][[negative_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MAX AGE ", a, sep=""), " TOO YOUNG OR MAX RATE TOO LOW", sep=""))
+max_rate_unit_number <<- append(max_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[negative_branch]])
@@ -789,14 +928,14 @@ if ((length(pool[[pool_to_include[[1]]]]$tip.label) == 1) & (length(pool[[pool_t
 print("joining two tips")
 pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length/max_rate
 pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length/max_rate
-if (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]] > pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]]){
-pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]] - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]]
+if (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]][[2]] > pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]][[2]]){
+pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]][[2]] - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]][[2]]
 } else {
-pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]] - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]]	
+pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label)]][[2]] - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label)]][[2]]	
 }
 
 new <- bind.tree(pool[[pool_to_include[[1]]]], pool[[pool_to_include[[2]]]])
-true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]]
+true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]][[2]]
 
 ###CONGRUIFY_TO_NODE_CALIBRATION#######
 
@@ -829,16 +968,27 @@ corresponding_tree <- extract.clade(tree, findMRCA(tree, new$tip.label, "node"))
 max_lengths <- vector(mode="numeric", length=0)
 for (a in 1:nrow(new[[1]])){
 for (b in 1:nrow(corresponding_tree[[1]])){
+
 if (new[[1]][,2][[a]] > length(new$tip.label) & corresponding_tree[[1]][,2][[b]] > length(corresponding_tree$tip.label)){
 if (setequal(extract.clade(new, new[[1]][,2][[a]])$tip.label, extract.clade(corresponding_tree, corresponding_tree[[1]][,2][[b]])$tip.label)){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 max_lengths <- append(max_lengths, corresponding_tree$edge.length[[b]]/min_rate)
+} else {
+max_lengths <- append(max_lengths, 1000000)
 }
 }
+}
+
 if (new[[1]][,2][[a]] <= length(new$tip.label) & corresponding_tree[[1]][,2][[b]] <= length(corresponding_tree$tip.label)){
 if (new$tip.label[[new[[1]][,2][[a]]]] == corresponding_tree$tip.label[[corresponding_tree[[1]][,2][[b]]]]){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 max_lengths <- append(max_lengths, corresponding_tree$edge.length[[b]]/min_rate)
+} else {
+max_lengths <- append(max_lengths, 1000000)
 }
 }
+}
+
 }
 }
 
@@ -857,6 +1007,8 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -891,6 +1043,8 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -925,6 +1079,8 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
+print(new)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -951,18 +1107,18 @@ continue_correction <- 1
 
 else if ((length(pool[[pool_to_include[[1]]]]$tip.label) > 1) & (length(pool[[pool_to_include[[2]]]]$tip.label) > 1)){ 
 print("joining two clades")
-if ((((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/max_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]])
+if ((((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/max_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[2]])
  > 
-(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/max_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]])){
+(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/max_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[2]])){
 pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]]/max_rate))
-pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]])) 
+pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[2]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[2]])) 
 } else {
 pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]]/max_rate))
-pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]])) 
+pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[2]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[2]])) 
 }
 
 new <- bind.tree(pool[[pool_to_include[[1]]]], pool[[pool_to_include[[2]]]])
-true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]]
+true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]][[2]]
 
 ###CONGRUIFY_TO_NODE_CALIBRATION#######
 
@@ -995,16 +1151,27 @@ corresponding_tree <- extract.clade(tree, findMRCA(tree, new$tip.label, "node"))
 max_lengths <- vector(mode="numeric", length=0)
 for (a in 1:nrow(new[[1]])){
 for (b in 1:nrow(corresponding_tree[[1]])){
+
 if (new[[1]][,2][[a]] > length(new$tip.label) & corresponding_tree[[1]][,2][[b]] > length(corresponding_tree$tip.label)){
 if (setequal(extract.clade(new, new[[1]][,2][[a]])$tip.label, extract.clade(corresponding_tree, corresponding_tree[[1]][,2][[b]])$tip.label)){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 max_lengths <- append(max_lengths, corresponding_tree$edge.length[[b]]/min_rate)
+} else {
+max_lengths <- append(max_lengths, 1000000)
 }
 }
+}
+
 if (new[[1]][,2][[a]] <= length(new$tip.label) & corresponding_tree[[1]][,2][[b]] <= length(corresponding_tree$tip.label)){
 if (new$tip.label[[new[[1]][,2][[a]]]] == corresponding_tree$tip.label[[corresponding_tree[[1]][,2][[b]]]]){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 max_lengths <- append(max_lengths, corresponding_tree$edge.length[[b]]/min_rate)
+} else {
+max_lengths <- append(max_lengths, 1000000)
 }
 }
+}
+
 }
 }
 
@@ -1023,6 +1190,7 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -1057,6 +1225,7 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -1091,6 +1260,7 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -1117,18 +1287,18 @@ continue_correction <- 1
 
 else if ((length(pool[[pool_to_include[[1]]]]$tip.label) == 1) & (length(pool[[pool_to_include[[2]]]]$tip.label) > 1)){
 print("joining one tip with a clade")
-if (((pool[[pool_to_include[[1]]]]$edge.length/max_rate) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]) 
+if (((pool[[pool_to_include[[1]]]]$edge.length/max_rate) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[2]]) 
 >
-(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/max_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]])){
+(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]])/max_rate) + node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[2]])){
 pool[[pool_to_include[[1]]]]$edge.length <- pool[[pool_to_include[[1]]]]$edge.length/max_rate
-pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]))
+pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (pool[[pool_to_include[[1]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[2]]) - (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[2]]))
 } else {
 pool[[pool_to_include[[2]]]] <- addroot(pool[[pool_to_include[[2]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[2]]]]$tip.label, "node"))]]/max_rate))
-pool[[pool_to_include[[1]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]) - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]
+pool[[pool_to_include[[1]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[2]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[2]]) - sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[2]]
 } 
 
 new <- bind.tree(pool[[pool_to_include[[1]]]], pool[[pool_to_include[[2]]]])
-true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]]
+true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]][[2]]
 
 ###CONGRUIFY_TO_NODE_CALIBRATION#######
 
@@ -1161,16 +1331,27 @@ corresponding_tree <- extract.clade(tree, findMRCA(tree, new$tip.label, "node"))
 max_lengths <- vector(mode="numeric", length=0)
 for (a in 1:nrow(new[[1]])){
 for (b in 1:nrow(corresponding_tree[[1]])){
+
 if (new[[1]][,2][[a]] > length(new$tip.label) & corresponding_tree[[1]][,2][[b]] > length(corresponding_tree$tip.label)){
 if (setequal(extract.clade(new, new[[1]][,2][[a]])$tip.label, extract.clade(corresponding_tree, corresponding_tree[[1]][,2][[b]])$tip.label)){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 max_lengths <- append(max_lengths, corresponding_tree$edge.length[[b]]/min_rate)
+} else {
+max_lengths <- append(max_lengths, 1000000)
 }
 }
+}
+
 if (new[[1]][,2][[a]] <= length(new$tip.label) & corresponding_tree[[1]][,2][[b]] <= length(corresponding_tree$tip.label)){
 if (new$tip.label[[new[[1]][,2][[a]]]] == corresponding_tree$tip.label[[corresponding_tree[[1]][,2][[b]]]]){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 max_lengths <- append(max_lengths, corresponding_tree$edge.length[[b]]/min_rate)
+} else {
+max_lengths <- append(max_lengths, 1000000)
 }
 }
+}
+
 }
 }
 
@@ -1189,6 +1370,7 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -1223,6 +1405,7 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -1257,6 +1440,7 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -1282,17 +1466,17 @@ continue_correction <- 1
 
 else if ((length(pool[[pool_to_include[[2]]]]$tip.label) == 1) & (length(pool[[pool_to_include[[1]]]]$tip.label) > 1)){
 print("joining one tip with a clade")
-if (((pool[[pool_to_include[[2]]]]$edge.length/max_rate) + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]) 
+if (((pool[[pool_to_include[[2]]]]$edge.length/max_rate) + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[2]]) 
 >
-(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/max_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]])){
+(((tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]])/max_rate) + node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[2]])){
 pool[[pool_to_include[[2]]]]$edge.length <- pool[[pool_to_include[[2]]]]$edge.length/max_rate
-pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]]$tip.label[[1]]) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]))
+pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (pool[[pool_to_include[[2]]]]$edge.length + sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[2]]) - (node.depth.edgelength(pool[[pool_to_include[[1]]]]$tip.label[[1]]) + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[2]]))
 } else {
 pool[[pool_to_include[[1]]]] <- addroot(pool[[pool_to_include[[1]]]], (tree_data_frame[,3][[which(tree_data_frame[,2] == findMRCA(tree, pool[[pool_to_include[[1]]]]$tip.label, "node"))]]/max_rate))
-pool[[pool_to_include[[2]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]]) - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]]
+pool[[pool_to_include[[2]]]]$edge.length <- (node.depth.edgelength(pool[[pool_to_include[[1]]]])[[1]] + sample_time[[which(tip == pool[[pool_to_include[[1]]]]$tip.label[[1]])]][[2]]) - sample_time[[which(tip == pool[[pool_to_include[[2]]]]$tip.label[[1]])]][[2]]
 } 
 new <- bind.tree(pool[[pool_to_include[[1]]]], pool[[pool_to_include[[2]]]])
-true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]]
+true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.label[[1]])]][[2]]
 
 ###CONGRUIFY_TO_NODE_CALIBRATION#######
 
@@ -1325,16 +1509,27 @@ corresponding_tree <- extract.clade(tree, findMRCA(tree, new$tip.label, "node"))
 max_lengths <- vector(mode="numeric", length=0)
 for (a in 1:nrow(new[[1]])){
 for (b in 1:nrow(corresponding_tree[[1]])){
+
 if (new[[1]][,2][[a]] > length(new$tip.label) & corresponding_tree[[1]][,2][[b]] > length(corresponding_tree$tip.label)){
 if (setequal(extract.clade(new, new[[1]][,2][[a]])$tip.label, extract.clade(corresponding_tree, corresponding_tree[[1]][,2][[b]])$tip.label)){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 max_lengths <- append(max_lengths, corresponding_tree$edge.length[[b]]/min_rate)
+} else {
+max_lengths <- append(max_lengths, 1000000)
 }
 }
+}
+
 if (new[[1]][,2][[a]] <= length(new$tip.label) & corresponding_tree[[1]][,2][[b]] <= length(corresponding_tree$tip.label)){
 if (new$tip.label[[new[[1]][,2][[a]]]] == corresponding_tree$tip.label[[corresponding_tree[[1]][,2][[b]]]]){
+if (corresponding_tree$edge.length[[b]] > noise_level){
 max_lengths <- append(max_lengths, corresponding_tree$edge.length[[b]]/min_rate)
+} else {
+max_lengths <- append(max_lengths, 1000000)
 }
 }
+}
+
 }
 }
 
@@ -1353,6 +1548,7 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -1387,6 +1583,7 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
@@ -1421,6 +1618,7 @@ long_branch <- long_branch[[1]]
 if (new[[1]][,2][[long_branch]] <= length(new$tip.label)){
 keep <<-new
 print(paste(paste("ISSUE: INCOMPATIBLE ASSUMPTIONS, MIN AGE ", a, sep=""), " TOO OLD OR MIN RATE TOO HIGH", sep=""))
+min_rate_unit_number <<- append(min_rate_unit_number, 1)
 return()
 }
 descendant <- extract.clade(new, new[[1]][,2][[long_branch]])
