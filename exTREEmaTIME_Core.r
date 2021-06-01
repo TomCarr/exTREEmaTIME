@@ -111,7 +111,7 @@ true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.
 ###CONGRUIFY_TO_NODE_CALIBRATION######
 
 if (n_max_constraints != 0){
-for (a in 1:length(max_constraints_clade)){
+for (a in 1:length(max_constraints_clade)){ 
 if (setequal(new$tip.label, max_constraints_tip_label[[a]])){
 print("node calibration being implemented")
 while (true_age > max_constraints_ages[[a]]+100000*calibration_implementation_precision){
@@ -311,7 +311,7 @@ true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.
 ###CONGRUIFY_TO_NODE_CALIBRATION######
 
 if (n_max_constraints != 0){
-for (a in 1:length(max_constraints_clade)){
+for (a in 1:length(max_constraints_clade)){ 
 if (setequal(new$tip.label, max_constraints_tip_label[[a]])){
 print("age shift due to node calibration")
 while (true_age > (max_constraints_ages[[a]]+(100000*calibration_implementation_precision))){
@@ -511,7 +511,7 @@ true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.
 ###CONGRUIFY_TO_NODE_CALIBRATION######
 
 if (n_max_constraints != 0){
-for (a in 1:length(max_constraints_clade)){
+for (a in 1:length(max_constraints_clade)){ 
 if (setequal(new$tip.label, max_constraints_tip_label[[a]])){
 while (true_age > max_constraints_ages[[a]]+(100000*calibration_implementation_precision)){
 true_age <- true_age - 100000*calibration_implementation_precision
@@ -709,7 +709,7 @@ true_age <- node.depth.edgelength(new)[[1]] + sample_time[[which(tip == new$tip.
 ###CONGRUIFY_TO_NODE_CALIBRATION######
 
 if (n_max_constraints != 0){
-for (a in 1:length(max_constraints_clade)){
+for (a in 1:length(max_constraints_clade)){ 
 if (setequal(new$tip.label, max_constraints_tip_label[[a]])){
 print("age shift due to node calibration")
 while (true_age > max_constraints_ages[[a]]+(100000*calibration_implementation_precision)){

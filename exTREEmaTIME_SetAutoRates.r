@@ -7,9 +7,9 @@ SetAutoRates <- function(tree, auto_rates_type, max_rate_unit, min_rate_unit, no
 if(auto_rates_type == 1){
 
 rmax_calc <<- (max(node.depth.edgelength(tree)[seq(1, length(tree$tip.label), 1)])*max_rate_unit)/(root_min + ((root_max-root_min)/2))
-print(rmax)
+print(rmax_calc)
 rmin_calc <<- (min(node.depth.edgelength(tree)[seq(1, length(tree$tip.label), 1)])/min_rate_unit)/(root_min + ((root_max-root_min)/2))
-print(rmin)
+print(rmin_calc)
 
 }
 
