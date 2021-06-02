@@ -1,5 +1,5 @@
 # exTREEmaTIME
-exTREEmaTIME: incorporating uncertainty into divergence time estimates
+exTREEmaTIME: a simple method for incorporating uncertainty into divergence time estimates
 
 ## Installation
 
@@ -11,11 +11,36 @@ to download use install_github("TomCarr/exTREEmaTIME")
 
 ### To perform the core divergence time analyses use:
 
-exTREEmaTIMEcalc(tree, rmax, rmin, n_max_constraints, max_constraints_clade, max_constraints_age, n_min_constraints, min_constraints_clade, min_constraints_age, calibration_implementation_precision, sample_time)
+exTREEmaTIMEmain(tree, 
+auto_rates, 
+auto_rates_type,
+max_rate_unit, 
+min_rate_unit, 
+rmax,
+rmin, 
+noise_level,
+root_max,
+root_min,
+n_max_constraints, 
+max_constraints_clade, 
+max_constraints_ages, 
+n_min_constraints, 
+min_constraints_clade, 
+min_constraints_ages, 
+calibration_implementation_precision, 
+tip, 
+sample_time,
+output_directory)
 
 #### arguments:
 
-tree: input phylogeny with branch lengths in units of n
+tree: input phylogenies with molecular branch lengths. A list of phylo objects. Can be a single tree, or many trees (eg. bootstrap replicates)
+
+auto_rates: 1 or 0. 1 will use the SetAutoRates function to define rmax and rmin, 0 will not.
+
+auto_rates_type: 1 or 2. Specifies the equation to use with SetAutoRates. 1 is based on variance of root to tip distance, 2 is based on variance of in length of sister branches.
+
+max_rate_unit: 
 
 rmax: the maximum possible substitution rate
 
