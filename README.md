@@ -30,9 +30,9 @@ tip,\
 sample_time,\
 output_directory)
 
-### arguments:
-
 **Note: see example folder for further clarification on how to specify inputs**
+
+### arguments:
 
 **tree:** input phylogenies with molecular branch lengths. A list of phylo objects. Can be a single tree, or many trees (eg. bootstrap replicates)
 
