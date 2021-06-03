@@ -32,6 +32,8 @@ output_directory)
 
 ### arguments:
 
+**see example folder for further clarification on how to specify inputs**
+
 **tree:** input phylogenies with molecular branch lengths. A list of phylo objects. Can be a single tree, or many trees (eg. bootstrap replicates)
 
 **auto_rates:** 1 or 0. 1 will use SetAutoRates to define rmax and rmin, 0 will not.
