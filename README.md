@@ -11,8 +11,8 @@ to download use install_github("TomCarr/exTREEmaTIME")
 
 ### To perform the core divergence time analyses use:
 
-exTREEmaTIMEmain(tree, 
-auto_rates, 
+exTREEmaTIMEmain(tree,\ 
+auto_rates,\
 auto_rates_type,
 max_rate_unit, 
 min_rate_unit, 
