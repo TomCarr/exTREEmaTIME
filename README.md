@@ -7,7 +7,7 @@ requires r packages phangorn, devtools, phytools, phylobase, TreePar
 
 to download use install_github("TomCarr/exTREEmaTIME")
 
-### To perform the core divergence time analyses use:
+## To perform the core divergence time analyses use:
 
 exTREEmaTIMEmain(tree,\
 auto_rates,\
@@ -30,7 +30,7 @@ tip,\
 sample_time,\
 output_directory)
 
-#### arguments:
+### arguments:
 
 tree: input phylogenies with molecular branch lengths. A list of phylo objects. Can be a single tree, or many trees (eg. bootstrap replicates)
 
@@ -66,6 +66,6 @@ sample_time: a list, with each list containing the minimum and maximum sampling 
 
 output_directory: directory in which to write output files
 
-#### outputs:
+### outputs:
 
 min_ages_tree, max_ages_tree, a summary of table of substitution rates for each branch
