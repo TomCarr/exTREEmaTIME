@@ -7,7 +7,7 @@ requires r packages phangorn, devtools, phytools, phylobase, TreePar
 
 to download use install_github("TomCarr/exTREEmaTIME")
 
-## To perform the core divergence time analyses use:
+## Function for performing core divergence time analyses
 
 exTREEmaTIMEmain(tree,\
 auto_rates,\
@@ -15,7 +15,7 @@ auto_rates_type,\
 max_rate_unit,\
 min_rate_unit,\
 rmax,\
-rmin,\ 
+rmin,\
 noise_level,\
 root_max,\
 root_min,\
@@ -32,9 +32,9 @@ output_directory)
 
 ### arguments:
 
-tree: input phylogenies with molecular branch lengths. A list of phylo objects. Can be a single tree, or many trees (eg. bootstrap replicates)
+**tree:** input phylogenies with molecular branch lengths. A list of phylo objects. Can be a single tree, or many trees (eg. bootstrap replicates)
 
-auto_rates: 1 or 0. 1 will use SetAutoRates to define rmax and rmin, 0 will not.
+**auto_rates:** 1 or 0. 1 will use SetAutoRates to define rmax and rmin, 0 will not.
 
 auto_rates_type: 1 or 2. Specifies the equation to use with SetAutoRates. 1 is based on variance of root to tip distance (equation 2 in Carruthers and Scotland (2021), 2 is based on variance in length of terminal sister branches (equation 1 in Carruthers and Scotland (2021)).
 
