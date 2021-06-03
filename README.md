@@ -13,78 +13,61 @@ to download use install_github("TomCarr/exTREEmaTIME")
 
 exTREEmaTIMEmain(tree,\
 auto_rates,\
-auto_rates_type,
-max_rate_unit, 
-min_rate_unit, 
-rmax,
-rmin, 
-noise_level,
-root_max,
-root_min,
-n_max_constraints, 
-max_constraints_clade, 
-max_constraints_ages, 
-n_min_constraints, 
-min_constraints_clade, 
-min_constraints_ages, 
-calibration_implementation_precision, 
-tip, 
-sample_time,
+auto_rates_type,\
+max_rate_unit,\
+min_rate_unit,\
+rmax,\
+rmin,\ 
+noise_level,\
+root_max,\
+root_min,\
+n_max_constraints,\ 
+max_constraints_clade,\ 
+max_constraints_ages,\ 
+n_min_constraints,\ 
+min_constraints_clade,\ 
+min_constraints_ages,\ 
+calibration_implementation_precision,\ 
+tip,\ 
+sample_time,\
 output_directory)
 
 #### arguments:
 
 tree: input phylogenies with molecular branch lengths. A list of phylo objects. Can be a single tree, or many trees (eg. bootstrap replicates)
 
-auto_rates: 1 or 0. 1 will use the SetAutoRates function to define rmax and rmin, 0 will not.
+auto_rates: 1 or 0. 1 will use SetAutoRates to define rmax and rmin, 0 will not.
 
-auto_rates_type: 1 or 2. Specifies the equation to use with SetAutoRates. 1 is based on variance of root to tip distance, 2 is based on variance of in length of sister branches.
+auto_rates_type: 1 or 2. Specifies the equation to use with SetAutoRates. 1 is based on variance of root to tip distance (equation 2 in Carruthers and Scotland (2021), 2 is based on variance in length of terminal sister branches (equation 1 in Carruthers and Scotland (2021)).
 
-max_rate_unit: 
+max_rate_unit: numeric vector with which to scale calculations of rmax in SetAutoRates (Carruthers and Scotland 2021). Analysis will work from smallest to highest value until divergence time estimation can reach completion. A higher max_rate_unit means a higher rmax is calculated by SetAutoRates.   
 
-rmax: the maximum possible substitution rate
+min_rate_unit: numeric vector with which to scale calculations of rmin in SetAutoRates (Carruthers and Scotland 2021). Analysis will work from smallest to highest value until divergence time estimation can reach completion. A higher min_rate_unit means a lower rmin is calculated by SetAutoRates.   
 
-rmin: the minimum possible substitution rate
+rmax: specified value for the maximum substitution rate. This value will be used if auto_rates is set to 0. Set this parameter to 0 if auto_rates is set to 1. 
 
-n_max_constraints: the number of specified maximum age constraints
+rmin: specified value for the minimum substitution rate. This value will be used if auto_rates is set to 0. Set this parameter to 0 if auto_rates is set to 1.
 
-max_constraints_clade: a list containing the taxa that belong to each clade with a maximum age constraint. Each list element contains each set of taxa.
+n_max_constraints: the number of maximum age constraints specified as a numeric vector. Several configurations for fossil calibrations can be inputted into an analysis, with each value in this vector specifying the number of maximum constraints in each configuration. 
 
-max_constraints_age: a vector containing the age of each maximum constraint, must be in order that corresponds to max_constraints_clade
+max_constraints_clade: lists containing the taxa for which the most recent common ancestor defines each clade with a maximum age constraint
 
-n_min_constraints: the number of specified minimum age constraints
+max_constraints_age: list containing the ages of maximum constraints, in same order as max_constraints_clade 
 
-min_constraints_clade: a list containing the taxa that belong to each clade with a minimum age constraint. Each list element contains each set of taxa.
+n_min_constraints: the number of minimum age constraints specified as a numeric vector. Several configurations for fossil calibrations can be inputted into an analysis, with each value in this vector specifying the number of minimum constraints in each configuration. 
 
-min_constraints_age: a vector containing the age of each minimum constraint, must be in order that corresponds to min_constraints_clade
+min_constraints_clade: lists containing the taxa for which the most recent common ancestor defines each clade with a minimum age constraint
 
-calibration_implementation_precision: numeric value that describes the scale of each round of age transformations when rescaling branches. Larger values will make the analysis run more quickly
+min_constraints_age: list containing the ages of minimum constraints, in same order as min_constraints_clade 
 
-tip: a vector of all tip labels in the input phylogeny
+calibration_implementation_precision: numeric value defining the percision with which temporal calibrations are implemented. Smaller values are more precise, but will cause the analysis to run somewhat more slowly. 
 
-sample_time: vector of the sampling time for each tip. Must be in the same order as the tip labels in the input phylogeny
+tip: a vector of tip labels in the input tree. 
 
-#### outputs:
+sample_time: a list, with each list containing the minimum and maximum sampling time for each tip label
 
-min_ages_tree, max_ages_tree, rates
-
-
-## To estimate reasonable values for rmin and rmax, as set out in Appendix 1, use:
-
-SetAutoRates(tree, root_min, root_max, unit)
-
-#### arguments:
-
-tree: input phylogeny with branch lengths in units of n
-
-root_min: minimum possible age of the root node
-
-root_max: maximum possible age of the root node
-
-unit: Increases the range between estimated values for rmin and rmax. Sequentially increase this value until analysis reaches completion.
+output_directory: directory in which to write output files
 
 #### outputs:
 
-rmin, rmax
- 
-
+min_ages_tree, max_ages_tree, a summary of table of substitution rates for each branch
