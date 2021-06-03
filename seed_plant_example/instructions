@@ -1,4 +1,0 @@
-#Instructions
-1) Run "short_input_script.R"
-2) use SetAutoRates (unit<-4 is the lowest value to enable analysis to reach completion)
-3) use exTREEmaTIMEcalc() to perform analysis
