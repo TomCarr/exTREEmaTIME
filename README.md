@@ -46,6 +46,8 @@ output_directory)
 
 **rmin:** specified value for the minimum substitution rate. This value will be used if auto_rates is set to 0. Set this parameter to 0 if auto_rates is set to 1.
 
+**noise_level:** branch length in input tree below which violations of rmax and rmin are tolerated. Required to account for stochasticity in substitution process, and to prevent very short branches having an excessive impact on age estimates
+
 **n_max_constraints:** the number of maximum age constraints specified as a numeric vector. Several configurations for fossil calibrations can be inputted into an analysis, with each value in this vector specifying the number of maximum constraints in each configuration. 
 
 **max_constraints_clade:** lists containing the taxa for which the most recent common ancestor defines each clade with a maximum age constraint
