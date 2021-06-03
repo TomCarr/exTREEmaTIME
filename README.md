@@ -7,8 +7,6 @@ requires r packages phangorn, devtools, phytools, phylobase, TreePar
 
 to download use install_github("TomCarr/exTREEmaTIME")
 
-## Functions
-
 ### To perform the core divergence time analyses use:
 
 exTREEmaTIMEmain(tree,\
@@ -21,14 +19,14 @@ rmin,\
 noise_level,\
 root_max,\
 root_min,\
-n_max_constraints,\ 
-max_constraints_clade,\ 
-max_constraints_ages,\ 
-n_min_constraints,\ 
-min_constraints_clade,\ 
-min_constraints_ages,\ 
-calibration_implementation_precision,\ 
-tip,\ 
+n_max_constraints,\
+max_constraints_clade,\
+max_constraints_ages,\
+n_min_constraints,\
+min_constraints_clade,\
+min_constraints_ages,\
+calibration_implementation_precision,\
+tip,\
 sample_time,\
 output_directory)
 
