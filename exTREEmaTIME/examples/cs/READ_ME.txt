@@ -1,2 +1,0 @@
-- "input.txt" used to perform standard analysis in paper
-- "input_broader.txt" used to perform analysis with bigger range between rmin and rmax
