@@ -34,8 +34,6 @@ pool[[i]] <- list(edge=matrix(c(2,1),1,2), tip.label=tree$tip.label[[i]], edge.l
 class(pool[[i]]) <- "phylo"
 }
 
-print("wee")
-
 if (n_max_constraints > 0){
 max_constraints_tip_label <- vector("list", n_max_constraints)
 for (i in 1:length(max_constraints_tip_label)){
@@ -43,16 +41,12 @@ max_constraints_tip_label[[i]] <- extract.clade(tree, findMRCA(tree, max_constra
 }
 }
 
-print("wee")
-
 if (n_min_constraints > 0){
 min_constraints_tip_label <- vector("list", n_min_constraints)
 for (i in 1:length(min_constraints_tip_label)){
 min_constraints_tip_label[[i]] <- extract.clade(tree, findMRCA(tree, min_constraints_clade[[i]], "node"))$tip.label
 }
 }
-
-print("wee")
 
 ##############################################################################################
 ###CORE_CLADE_AGE_CALCULATION_FOR_MAX_AGE#####################################################
