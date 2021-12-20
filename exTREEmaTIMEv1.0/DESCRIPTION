@@ -1,5 +1,5 @@
 Package: exTREEmaTIMEv1.0
-Title: What the Package Does (One Line, Title Case)
+Title: Divergence time estimation with minimal assumptions
 Version: 1.0.0.0
 Authors@R: 
     person(given = "Tom",
