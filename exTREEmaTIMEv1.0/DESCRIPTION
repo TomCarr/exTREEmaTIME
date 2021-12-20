@@ -1,0 +1,16 @@
+Package: exTREEmaTIMEv1.0
+Title: Divergence time estimation with minimal assumptions
+Version: 1.0.0.0
+Authors@R: 
+    person(given = "Tom",
+           family = "Carruthers",
+           role = c("aut", "cre"),
+           email = "tomcarruthers94@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
