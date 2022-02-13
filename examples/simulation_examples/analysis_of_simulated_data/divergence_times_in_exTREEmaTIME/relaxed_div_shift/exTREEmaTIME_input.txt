@@ -1,0 +1,231 @@
+####################################################
+###RELAXED_SIM######################################
+####################################################
+
+###specify_input_tree###############################
+
+input_tree <- drop.tip(read.tree("input.tre"), "t1001")
+tree <- vector("list", 1)
+tree[[1]] <- input_tree 
+
+###implement_set_auto_rates#########################
+
+auto_rates <- 1
+
+###which_implementation_of_set_auto_rates_to_use####
+
+auto_rates_type <- 2
+
+###work_through_units_for_set_auto_rates############
+
+max_rate_unit <- c(1,2,3,4,5,6,7,8,9,10,11,12)
+min_rate_unit <- c(1,2,3,4,5,6,7,8,9,10,11,12)
+
+###specified_rmax_to_use############################
+
+rmax <- 0
+
+###specified_rmax_to_use############################
+
+rmin <- 0
+
+###noise_level_to_allow#############################
+
+noise_level <- 0.0005
+
+###max_age_for_root_node############################
+
+root_max <- c(0.9970)
+
+###min_age_for_root_node############################
+
+root_min <- c(0.9968)
+
+###number_of_maximum_constraints####################
+
+n_max_constraints <- c(1)
+
+###age_of_maximum_constraints#######################
+
+max_constraints_ages <- vector("list", 1)
+max_constraints_ages[[1]] <- vector("list", 1)
+max_constraints_ages[[1]][[1]] <- 0.9970
+
+###tip_labels_of_maximum_constraint_clades###########
+
+max_constraints_clade <- vector("list", 1)
+max_constraints_clade[[1]] <- vector("list", 1)
+max_constraints_clade[[1]][[1]] <- tree[[1]]$tip.label
+
+###number_of_minimum_constraints####################
+
+n_min_constraints <- c(1)
+
+min_constraints_ages <- vector("list", 1)
+min_constraints_ages[[1]] <- vector("list", 1)
+min_constraints_ages[[1]][[1]] <- 0.9968
+
+###tip_labels_of_maximum_constraint_clades###########
+
+min_constraints_clade <- vector("list", 1)
+min_constraints_clade[[1]] <- vector("list", 1)
+min_constraints_clade[[1]][[1]] <- tree[[1]]$tip.label
+
+###precision_to_implement_calibrations##############
+
+calibration_implementation_precision <- 0.000001
+
+###tip_labels_in_tree###############################
+
+tip <- tree[[1]]$tip.label
+
+###sample_time_for_tips#############################
+
+sample_time <- vector("list", length(tree[[1]]$tip.label))
+for (i in 1:length(sample_time)){
+sample_time[[i]] <- rep(0, 2)
+}
+
+###directory_in_which_to_write_output###############
+
+output_directory <- "output_no_calibration"
+
+###run_extreematime_with_full_complement############
+
+exTREEmaTIMEmain(tree, 
+auto_rates, 
+auto_rates_type,
+max_rate_unit, 
+min_rate_unit, 
+rmax,
+rmin, 
+noise_level,
+root_max,
+root_min,
+n_max_constraints, 
+max_constraints_clade, 
+max_constraints_ages, 
+n_min_constraints, 
+min_constraints_clade, 
+min_constraints_ages, 
+calibration_implementation_precision, 
+tip, 
+sample_time,
+output_directory) 
+
+####################################################
+###RELAXED_SIM######################################
+####################################################
+
+###specify_input_tree###############################
+
+input_tree <- drop.tip(read.tree("input.tre"), "t1001")
+tree <- vector("list", 1)
+tree[[1]] <- input_tree 
+
+###implement_set_auto_rates#########################
+
+auto_rates <- 1
+
+###which_implementation_of_set_auto_rates_to_use####
+
+auto_rates_type <- 2
+
+###work_through_units_for_set_auto_rates############
+
+max_rate_unit <- c(1,2,3,4,5,6,7,8,9,10,11,12)
+min_rate_unit <- c(1,2,3,4,5,6,7,8,9,10,11,12)
+
+###specified_rmax_to_use############################
+
+rmax <- 0
+
+###specified_rmax_to_use############################
+
+rmin <- 0
+
+###noise_level_to_allow#############################
+
+noise_level <- 0.0005
+
+###max_age_for_root_node############################
+
+root_max <- c(0.9970)
+
+###min_age_for_root_node############################
+
+root_min <- c(0.9968)
+
+###number_of_maximum_constraints####################
+
+n_max_constraints <- c(1)
+
+###age_of_maximum_constraints#######################
+
+max_constraints_ages <- vector("list", 1)
+max_constraints_ages[[1]] <- vector("list", 1)
+max_constraints_ages[[1]][[1]] <- 0.9970
+
+###tip_labels_of_maximum_constraint_clades###########
+
+max_constraints_clade <- vector("list", 1)
+max_constraints_clade[[1]] <- vector("list", 1)
+max_constraints_clade[[1]][[1]] <- tree[[1]]$tip.label
+
+###number_of_minimum_constraints####################
+
+n_min_constraints <- c(2)
+
+min_constraints_ages <- vector("list", 1)
+min_constraints_ages[[1]] <- vector("list", 2)
+min_constraints_ages[[1]][[1]] <- 0.9968
+min_constraints_ages[[1]][[2]] <- 0.12663
+
+###tip_labels_of_maximum_constraint_clades###########
+
+min_constraints_clade <- vector("list", 1)
+min_constraints_clade[[1]] <- vector("list", 1)
+min_constraints_clade[[1]][[1]] <- tree[[1]]$tip.label
+min_constraints_clade[[1]][[2]] <- c("t19", "t3", "t7", "t13", "t8", "t20", "t4", "t16", "t15", "t17", "t21", "t6", "t5", "t11", "t1", "t12", "t14", "t10", "t24", "t23")
+
+###precision_to_implement_calibrations##############
+
+calibration_implementation_precision <- 0.000001
+
+###tip_labels_in_tree###############################
+
+tip <- tree[[1]]$tip.label
+
+###sample_time_for_tips#############################
+
+sample_time <- vector("list", length(tree[[1]]$tip.label))
+for (i in 1:length(sample_time)){
+sample_time[[i]] <- rep(0, 2)
+}
+
+###directory_in_which_to_write_output###############
+
+output_directory <- "output_calibration"
+
+###run_extreematime_with_full_complement############
+
+exTREEmaTIMEmain(tree, 
+auto_rates, 
+auto_rates_type,
+max_rate_unit, 
+min_rate_unit, 
+rmax,
+rmin, 
+noise_level,
+root_max,
+root_min,
+n_max_constraints, 
+max_constraints_clade, 
+max_constraints_ages, 
+n_min_constraints, 
+min_constraints_clade, 
+min_constraints_ages, 
+calibration_implementation_precision, 
+tip, 
+sample_time,
+output_directory) 

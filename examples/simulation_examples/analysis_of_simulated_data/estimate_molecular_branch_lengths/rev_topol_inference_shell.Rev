@@ -1,0 +1,8 @@
+input <- v("sims_output/uncorrelated_relaxed_fixed.nexus", "sims_output/uncorrelated_relaxed_div_shift.nexus")
+filename <- v("fixed", "div_shift")
+topology_fix <- v("sims_output/entire_uncorrelated_relaxed_tree.tre", "sims_output/entire_div_shift_uncorrelated_relaxed_tree.tre")
+
+for (z in 1:length(input)){
+data <- readDiscreteCharacterData(input[z])
+source("branch_length.Rev")
+}

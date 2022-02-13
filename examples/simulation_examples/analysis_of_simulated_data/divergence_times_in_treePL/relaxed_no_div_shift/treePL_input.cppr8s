@@ -1,0 +1,22 @@
+treefile = input.tre
+
+mrca = all t16 t14
+min = all 1.8979
+max = all 1.8979
+
+numsites = 50000
+
+cv
+cviter=100
+pliter=100
+cvstart=10000
+cvstop=0.01
+cvsimaniter=10000
+plsimaniter=10000
+thorough
+opt = 1
+moredetail
+optad = 2
+moredetailad
+optcvad = 2
+moredetailcvad
