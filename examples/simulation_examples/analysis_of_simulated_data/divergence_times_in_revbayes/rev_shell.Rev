@@ -1,0 +1,71 @@
+input_sequence <- v(
+"../../generate_simulated_data/sims_output/constant_uncorrelated_relaxed_no_og.nexus",
+"../../generate_simulated_data/sims_output/constant_uncorrelated_relaxed_no_og.nexus",
+"../../generate_simulated_data/sims_output/div_shift_uncorrelated_relaxed_no_og.nexus",
+"../../generate_simulated_data/sims_output/div_shift_uncorrelated_relaxed_no_og.nexus"
+)
+
+#####################################################
+
+input_tree <- v(
+"../../generate_simulated_data/sims_output/constant_tree_no_og.tre",
+"../../generate_simulated_data/sims_output/constant_tree_no_og.tre",
+"../../generate_simulated_data/sims_output/div_shift_tree_no_og.tre",
+"../../generate_simulated_data/sims_output/div_shift_tree_no_og.tre"
+)
+
+####################################################
+
+output_files <- v(
+"output/uncorrelated_relaxed_constant/",
+"output/random_relaxed_constant/",
+"output/uncorrelated_relaxed_div_shift/",
+"output/uncorrelated_relaxed_div_shift_constrained/"
+)
+
+####################################################
+
+clock_means_means <- v(0.04963612, 0.04963612, 0.04963641, 0.04963641)
+clock_means_sds <- v(0.0006003396, 0.0006003396, 0.01209307, 0.01209307)
+
+###
+
+clock_sds_means <- v(0.04686409, 0.04686409, 0.1988623, 0.1988623)
+clock_sds_sds <- v(0.02019097, 0.02019097, 0.2229615, 0.2229615)
+
+###
+
+rate_max_means <- v(0,1.683843,0,0,0)
+rate_max_sds <- v(0,0.08351071,0,0,0)
+
+###
+
+rate_min_means <- v(0,0.5980338,0,0,0)
+rate_min_sds <- v(0,0.08351071,0,0,0)
+
+####################################################
+####################################################
+
+z=1
+data <- readDiscreteCharacterData(input_sequence[z])
+tree <- readTrees(input_tree[z])[1]
+source("uncorrelated_relaxed_script.Rev")
+
+z=2
+data <- readDiscreteCharacterData(input_sequence[z])
+tree <- readTrees(input_tree[z])[1]
+source("random_relaxed_script.Rev")
+
+z=3
+data <- readDiscreteCharacterData(input_sequence[z])
+tree <- readTrees(input_tree[z])[1]
+source("uncorrelated_relaxed_script.Rev")
+
+z=4
+data <- readDiscreteCharacterData(input_sequence[z])
+tree <- readTrees(input_tree[z])[1]
+source("uncorrelated_relaxed_script_with_calib.Rev")
+
+
+
+

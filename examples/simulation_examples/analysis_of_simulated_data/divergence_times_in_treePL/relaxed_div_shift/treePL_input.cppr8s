@@ -1,0 +1,21 @@
+treefile = div_shift_uncorrelated_relaxed_bl_tree.tre
+
+mrca = all ... # root node
+min = all ... # root age
+max = all ... # root age
+
+numsites = 50000
+
+cv
+cviter=100
+pliter=100
+cvstart=10000
+cvstop=0.01
+cvsimaniter=10000
+plsimaniter=10000
+thorough
+opt = 5 # may want to re-run prime function
+optad = 2
+moredetailad
+optcvad = 2
+moredetailcvad
