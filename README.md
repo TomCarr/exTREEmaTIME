@@ -1,6 +1,7 @@
 # exTREEmaTIME
 A method for incorporating uncertainty into divergence time estimates.\
 Instructions and further details are [**here**](https://github.com/TomCarr/exTREEmaTIME/wiki/Further-details-and-instructions).
+please cite: Carruthers and Scotland 2022. exTREEmaTIME: a method for incorporating uncertainty into divergence time estimates. Biol Open. https://doi.org/10.1242/bio.059181 
 
 ### update 20/12/21
 Version 1 added. Runs about 1000X faster than the original version. Produces virtually identical estimates. calibration_implementation_precision parameter removed. All calibrations are implemented precisely.  
