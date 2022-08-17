@@ -1,1 +1,0 @@
-writeNexus("output/" + filename[z] + "_index_tree.tre", tree)
