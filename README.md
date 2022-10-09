@@ -3,6 +3,9 @@ A method for incorporating uncertainty into divergence time estimates.\
 Instructions and further details are [**here**](https://github.com/TomCarr/exTREEmaTIME/wiki/Further-details-and-instructions).\
 please cite: Carruthers and Scotland 2022. exTREEmaTIME: a method for incorporating uncertainty into divergence time estimates. Biol Open. https://doi.org/10.1242/bio.059181 
 
+### 10/10/22
+TreePar no longer on cran. Old versions here: https://cran.r-project.org/src/contrib/Archive/TreePar/. 
+
 ### 17/08/22
 Examples clarified. The original examples don't work with v1.0 (because it searches for the discontinued argument calibration_implementation_precision). Example now provided that should work straight away with version 1. Examples for each version are indicated - strongly recommend version 1, it's far faster.
 
