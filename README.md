@@ -3,6 +3,9 @@ A method for incorporating uncertainty into divergence time estimates.\
 Instructions and further details are [**here**](https://github.com/TomCarr/exTREEmaTIME/wiki/Further-details-and-instructions).\
 please cite: Carruthers and Scotland 2022. exTREEmaTIME: a method for incorporating uncertainty into divergence time estimates. Biol Open. https://doi.org/10.1242/bio.059181 
 
+### 02/05/23
+Updated version this summer. Will include: different rmins and rmaxs for different parts of the tree, generation of age estimates to enable testing of diversification rate estimates, will be available in r and python, with minimal dependence on other packages
+
 ### 10/10/22
 TreePar no longer on cran. Old versions here: https://cran.r-project.org/src/contrib/Archive/TreePar/. 
 
